@@ -1,3 +1,36 @@
 spring:
   application:
     name: multitenancy
+  datasource:
+    url: jdbc:mysql://localhost:3315/multitenancy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: multitenancy
+    password: multitenancy
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        hbm2ddl:
+          auto: none
+  flyway:
+    # Disabled: MultiTenantManager owns all Flyway execution.
+    # Leaving this enabled would cause Spring Boot to run app migrations
+    # (classpath:db/migration) against the management DB on startup.
+    enabled: false
+
+multitenancy:
+  parallel-migration: true
+  tenant-refresh-rate-ms: 3600000
+  # Per-tenant app migrations (e.g. Product table). Runs on each tenant DB.
+  app-locations: classpath:db/migration/app/mysql
+  db:
+    host: localhost
+    port: 3315
+    settings: useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+
+
+# Logging
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} --- %-5p --- [%15.15t] %-40.40logger{39} :%X{tenantCode} %msg%n"
